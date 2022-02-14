@@ -21,7 +21,8 @@ os_detect () {
   if [ -f /etc/debian_version ]
   then
       PACKAGE_MANAGER=apt
-      DEBIAN_RECOMMENDS=''
+      
+      # The section below is used to generate passbolt sources.list
       DISTRONAME=$(grep -E "^ID=" /etc/os-release | awk -F= '{print $2}')
       # CODENAME used for Debian family
       CODENAME=$(grep -E "^VERSION_CODENAME=" /etc/os-release | awk -F= '{print $2}' || true)
@@ -30,6 +31,11 @@ os_detect () {
       if [ "${CODENAME}" = "bullseye" ]
       then
           CODENAME="buster"
+      fi
+      # Handle Raspberry PI raspbian OS
+      if [ "${DISTRONAME}" = "raspbian" ]
+      then
+          DISTRONAME="debian"
       fi
   elif which zypper > /dev/null 2>&1
   then
