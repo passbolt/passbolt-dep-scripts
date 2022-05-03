@@ -10,8 +10,10 @@ fi
 
 LC_ALL="en_US.UTF-8"
 LC_CTYPE="en_US.UTF-8"
-PASSBOLT_FLAVOUR=pro
-PASSBOLT_BRANCH=stable
+PASSBOLT_FLAVOUR="pro"
+PASSBOLT_BRANCH="stable"
+PASSBOLT_KEYRING_FILE="/usr/share/keyrings/passbolt-repository.gpg"
+PASSBOLT_FINGERPRINT="3D1A0346C8E1802F774AEF21DE8B853FC155581D"
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 cd ${SCRIPT_DIR}
@@ -177,18 +179,31 @@ EOF
   fi
 }
 
+pull_updated_pub_key() {
+  declare -a serverlist=("keys.mailvelope.com" "keys.openpgp.org" "pgp.mit.edu")
+  for serverin in "${serverlist[@]}"
+  do
+    mkdir -m 0700 -p /root/.gnupg
+    gpg --no-default-keyring --keyring ${PASSBOLT_KEYRING_FILE} --keyserver hkps://${serverin} --recv-keys ${PASSBOLT_FINGERPRINT}
+    if [ $? -eq 0 ] ; then
+      break
+    fi
+  done
+}
+
+
 setup_repository () {
   if [ "${PACKAGE_MANAGER}" = "apt" ]
   then
-    curl -s https://download.passbolt.com/pub.key | gpg --dearmor | tee /usr/share/keyrings/passbolt-repository.gpg > /dev/null
-    chmod 644 /usr/share/keyrings/passbolt-repository.gpg
+    pull_updated_pub_key > /dev/null
+    chmod 644 ${PASSBOLT_KEYRING_FILE}
 
     cat << EOF | tee /etc/apt/sources.list.d/passbolt.sources > /dev/null
 Types: deb
 URIs: https://download.passbolt.com/${PASSBOLT_FLAVOUR}/${DISTRONAME}
 Suites: ${CODENAME}
 Components: ${PASSBOLT_BRANCH}
-Signed-By: /usr/share/keyrings/passbolt-repository.gpg
+Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
   elif [ "${OS_NAME}" = "fedora" ]
