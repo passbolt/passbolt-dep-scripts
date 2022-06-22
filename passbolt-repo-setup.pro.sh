@@ -184,8 +184,15 @@ pull_updated_pub_key() {
   for serverin in "${serverlist[@]}"
   do
     mkdir -m 0700 -p /root/.gnupg
-    gpg --no-default-keyring --keyring ${PASSBOLT_KEYRING_FILE} --keyserver hkps://${serverin} --recv-keys ${PASSBOLT_FINGERPRINT}
-    if [ $? -eq 0 ] ; then
+    # Handle gpg error in case of a server key failure
+    # Without this check, and because we are using set -euo pipefail
+    # The script fail in case of failure
+    gpg --no-default-keyring --keyring ${PASSBOLT_KEYRING_FILE} --keyserver hkps://${serverin} --recv-keys ${PASSBOLT_FINGERPRINT} \
+    || if [ $? -eq 0 ] ; then
+      break
+    fi
+    # This if statement is to break the loop in case of success
+    if [ ${PIPESTATUS[0]} -eq 0 ] ; then
       break
     fi
   done
