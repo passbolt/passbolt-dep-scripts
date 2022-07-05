@@ -25,7 +25,38 @@ _error_exit () {
   exit 1
 }
 
+function is_supported_distro() {
+    source /etc/os-release
+    local DISTROS=(
+            "debian10"
+            "debian11"
+            "raspbian"
+            "ubuntu20"
+            "centos7"
+            "rhel7"
+            "rhel8"
+            "rocky8"
+            "ol8"
+            "almalinux8"
+            "fedora34"
+            "fedora35"
+            "fedora36"
+            "opensuse-leap15"
+          )
+    for DISTRO in "${DISTROS[@]}"
+    do
+      # the ${VERSION_ID%.*} pattern is to remove minor version, aka rhel8 for rhel8.6
+      [[ "${ID}${VERSION_ID%.*}" = ${DISTRO}* ]] && return 0
+    done
+    return 1
+}
+
 compliance_check () {
+  source /etc/os-release
+  local NOT_SUPPORTED_DISTRO="Unfortunately, ${PRETTY_NAME:-This Linux distribution} is not supported :-("
+  if ! is_supported_distro; then
+    _error_exit "${NOT_SUPPORTED_DISTRO}"
+  fi
   local IPV6_ERROR="Your server has no IPv6 support"
   if ! sudo sysctl -a | grep disable_ipv6 > /dev/null
   then
@@ -103,13 +134,6 @@ os_detect () {
       OS_NAME=$(grep -E '^ID=' /etc/os-release | awk -F= '{print $2}')
       OS_VERSION=$(grep -E '^VERSION_ID=' /etc/os-release | awk -F= '{print $2}' | sed 's/\"//g')
       OS_VERSION_MAJOR=$(echo ${OS_VERSION:0:1} | bc)
-  fi
-
-  if [ "$(grep -E "^ID=" /etc/os-release | awk -F= '{print $2}' | sed 's/"//g')" = "ol" ] && [ "${OS_VERSION_MAJOR}" = "7" ]
-  then
-      echo "Oracle Linux 7 not supported"
-      echo "Exit"
-      exit 1
   fi
 }
 
