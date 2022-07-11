@@ -32,6 +32,7 @@ function is_supported_distro() {
             "debian11"
             "raspbian"
             "ubuntu20"
+            "ubuntu22"
             "centos7"
             "rhel7"
             "rhel8"
