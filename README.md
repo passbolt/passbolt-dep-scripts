@@ -39,7 +39,7 @@ This script has been reported to work on the following operating systems:
 
 * Debian 10 / 11
 * Raspbian (Raspberry Pi)
-* Ubuntu 20.04
+* Ubuntu 20.04 / 22.04
 * CentOS 7
 * Red Hat 7 / 8
 * RockyLinux 8
