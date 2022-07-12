@@ -99,11 +99,14 @@ os_detect () {
       if [ "${CODENAME}" = "bullseye" ]
       then
           CODENAME="buster"
-      fi
       # Handle Raspberry PI raspbian OS
-      if [ "${DISTRONAME}" = "raspbian" ]
+      elif [ "${DISTRONAME}" = "raspbian" ]
       then
           DISTRONAME="debian"
+      # We use focal ubuntu package for jammy
+      elif [ "${CODENAME}" = "jammy" ]
+      then
+          CODENAME="focal"
       fi
   elif which zypper > /dev/null 2>&1
   then
