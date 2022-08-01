@@ -36,6 +36,7 @@ function is_supported_distro() {
             "centos7"
             "rhel7"
             "rhel8"
+            "rhel9"
             "rocky8"
             "ol8"
             "almalinux8"
@@ -77,7 +78,7 @@ compliance_check () {
     then
       _error_exit "${PHP_ERROR}"
     fi
-    if rpm -qa | grep remi-release > /dev/null 
+    if rpm -qa | grep remi-release > /dev/null
     then
       _error_exit "remi-release is already installed, please remove it before executing this script"
     fi
@@ -89,12 +90,12 @@ os_detect () {
   if [ -f /etc/debian_version ]
   then
       PACKAGE_MANAGER=apt
-      
+
       # The section below is used to generate passbolt sources.list
       DISTRONAME=$(grep -E "^ID=" /etc/os-release | awk -F= '{print $2}')
       # CODENAME used for Debian family
       CODENAME=$(grep -E "^VERSION_CODENAME=" /etc/os-release | awk -F= '{print $2}' || true)
-  
+
       # We use buster debian package for bullseye
       if [ "${CODENAME}" = "bullseye" ]
       then
@@ -199,6 +200,12 @@ EOF
       ${PACKAGE_MANAGER} install -y yum-utils
       yum-config-manager --disable 'remi-php*'
       yum-config-manager --enable   remi-php74
+    elif [ ${OS_VERSION_MAJOR} -eq 9 ]
+    then
+      ${PACKAGE_MANAGER} install -y certbot wget
+      ${PACKAGE_MANAGER} module -y reset php
+      ${PACKAGE_MANAGER} module -y install php:remi-8.1
+      pip install certbot-nginx
     else
       ${PACKAGE_MANAGER} install -y certbot python3-certbot-nginx wget
       ${PACKAGE_MANAGER} module -y reset php
@@ -241,7 +248,7 @@ Components: ${PASSBOLT_BRANCH}
 Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
-  elif [ "${OS_NAME}" = "fedora" ]
+  elif [ "${OS_NAME}" = "fedora" ] || [ "${OS_VERSION_MAJOR}" -eq 9 ]
   then
     cat << EOF | sudo tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
@@ -261,7 +268,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://download.passbolt.com/pub.key
 EOF
-  elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
+elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] || [ "${OS_VERSION_MAJOR}" != 9 ]
   then
     cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
