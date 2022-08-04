@@ -205,7 +205,7 @@ EOF
       yum-config-manager --enable   remi-php74
     elif [ ${OS_VERSION_MAJOR} -eq 9 ]
     then
-      ${PACKAGE_MANAGER} install -y certbot wget
+      ${PACKAGE_MANAGER} install -y certbot wget python3-pip
       ${PACKAGE_MANAGER} module -y reset php
       ${PACKAGE_MANAGER} module -y install php:remi-8.1
       pip install certbot-nginx
