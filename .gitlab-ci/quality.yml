@@ -1,0 +1,11 @@
+Repository filesystem scan:
+  stage: Quality
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/aquasec:latest
+  script:
+    - trivy fs .
+
+Configuration scan:
+  stage: Quality
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/aquasec:latest
+  script:
+    - trivy config .
