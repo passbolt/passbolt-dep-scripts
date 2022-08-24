@@ -207,7 +207,7 @@ EOF
     fi
     ${PACKAGE_MANAGER} install -y dnf-plugins-core
     ${PACKAGE_MANAGER} module reset php -y
-    ${PACKAGE_MANAGER} module install php:remi-7.4 -y
+    ${PACKAGE_MANAGER} module install php:remi-8.1 -y
     ${PACKAGE_MANAGER} config-manager --set-enabled remi
     # pcre2 package needs to be upgraded to last version
     # there is a bug with preg_match() if we keep the current one installed
@@ -218,27 +218,20 @@ EOF
     if [ "$(grep -E "^ID=" /etc/os-release | awk -F= '{print $2}' | sed 's/"//g')" = "ol" ]
     then
       # Oracle Linux
-      ${PACKAGE_MANAGER} install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-"${OS_VERSION_MAJOR}".noarch.rpm
+      ${PACKAGE_MANAGER} install -y oracle-epel-release-el"${OS_VERSION_MAJOR}"
     else
       ${PACKAGE_MANAGER} install -y epel-release
     fi
+    ${PACKAGE_MANAGER} install -y wget python3
     ${PACKAGE_MANAGER} install -y https://rpms.remirepo.net/enterprise/remi-release-"${OS_VERSION_MAJOR}".rpm
     if [ "${OS_VERSION_MAJOR}" -eq 7 ]
     then
-      ${PACKAGE_MANAGER} install -y certbot python-certbot-nginx wget
       ${PACKAGE_MANAGER} install -y yum-utils
       yum-config-manager --disable 'remi-php*'
-      yum-config-manager --enable   remi-php74
-    elif [ "${OS_VERSION_MAJOR}" -eq 9 ]
-    then
-      ${PACKAGE_MANAGER} install -y certbot wget python3-pip
+      yum-config-manager --enable   remi-php81
+    else
       ${PACKAGE_MANAGER} module -y reset php
       ${PACKAGE_MANAGER} module -y install php:remi-8.1
-      pip install certbot-nginx
-    else
-      ${PACKAGE_MANAGER} install -y certbot python3-certbot-nginx wget
-      ${PACKAGE_MANAGER} module -y reset php
-      ${PACKAGE_MANAGER} module -y install php:remi-7.4
     fi
   fi
 }
