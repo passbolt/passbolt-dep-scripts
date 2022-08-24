@@ -1,0 +1,18 @@
+.shellcheck:
+  stage: Quality
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/alpine-3.16:latest
+  variables:
+    SCRIPTFILE: ""
+  script:
+    - apk add --no-cache shellcheck
+    - shellcheck ${SCRIPTFILE}
+
+ShellCheck CE:
+  extends: .shellcheck
+  variables:
+    SCRIPTFILE: "passbolt-repo-setup.ce.sh"
+
+ShellCheck PRO:
+  extends: .shellcheck
+  variables:
+    SCRIPTFILE: "passbolt-repo-setup.pro.sh"
