@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [ $(id -u) -gt 0 ]
+if [ "$(id -u)" -gt 0 ]
 then
   echo "You need to launch this script as root user (or use sudo) !"
   exit 1
@@ -15,8 +15,11 @@ PASSBOLT_BRANCH="stable"
 PASSBOLT_KEYRING_FILE="/usr/share/keyrings/passbolt-repository.gpg"
 PASSBOLT_FINGERPRINT="3D1A0346C8E1802F774AEF21DE8B853FC155581D"
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
-cd ${SCRIPT_DIR}
+# shellcheck source=/dev/null
+source /etc/os-release
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "$0")" && pwd -P)
+cd "${SCRIPT_DIR}"
 
 _error_exit () {
   MESSAGE=${1:-Unknown error}
@@ -25,8 +28,28 @@ _error_exit () {
   exit 1
 }
 
+passboltMigrate=0
+
+while :; do
+    case ${1-default} in
+        --passbolt-migrate)
+            passboltMigrate=1
+            ;;
+        --)              # End of all options.
+            shift
+            break
+            ;;
+        -?*)
+            printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+            ;;
+        *)               # Default case: No more options, so break out of the loop.
+            break
+    esac
+
+    shift
+done
+
 function is_supported_distro() {
-    source /etc/os-release
     local DISTROS=(
             "debian10"
             "debian11"
@@ -36,9 +59,13 @@ function is_supported_distro() {
             "centos7"
             "rhel7"
             "rhel8"
+            "rhel9"
             "rocky8"
+            "rocky9"
             "ol8"
+            "ol9"
             "almalinux8"
+            "almalinux9"
             "fedora34"
             "fedora35"
             "fedora36"
@@ -53,33 +80,35 @@ function is_supported_distro() {
 }
 
 compliance_check () {
-  source /etc/os-release
   local NOT_SUPPORTED_DISTRO="Unfortunately, ${PRETTY_NAME:-This Linux distribution} is not supported :-("
   if ! is_supported_distro; then
     _error_exit "${NOT_SUPPORTED_DISTRO}"
   fi
   local IPV6_ERROR="Your server has no IPv6 support"
-  if ! sudo sysctl -a | grep disable_ipv6 > /dev/null
+  if ! sysctl -a | grep disable_ipv6 > /dev/null
   then
     _error_exit "${IPV6_ERROR}"
   fi
-  local PHP_ERROR="PHP is already installed, you must execute this script on a vanilla server"
-  if [ -f /usr/bin/dpkg ]
+  if [ ${passboltMigrate} -eq 0 ]
   then
-    if dpkg -l | grep php > /dev/null
+    local PHP_ERROR="PHP is already installed, you must execute this script on a vanilla server"
+    if [ -f /usr/bin/dpkg ]
     then
-      _error_exit "${PHP_ERROR}"
+      if dpkg -l | grep php > /dev/null
+      then
+        _error_exit "${PHP_ERROR}"
+      fi
     fi
-  fi
-  if [ -f /usr/bin/rpm ]
-  then
-    if rpm -qa | grep php > /dev/null
+    if [ -f /usr/bin/rpm ]
     then
-      _error_exit "${PHP_ERROR}"
-    fi
-    if rpm -qa | grep remi-release > /dev/null 
-    then
-      _error_exit "remi-release is already installed, please remove it before executing this script"
+      if rpm -qa | grep php > /dev/null
+      then
+        _error_exit "${PHP_ERROR}"
+      fi
+      if rpm -qa | grep remi-release > /dev/null 
+      then
+        _error_exit "remi-release is already installed, please remove it before executing this script"
+      fi
     fi
   fi
 }
@@ -89,12 +118,12 @@ os_detect () {
   if [ -f /etc/debian_version ]
   then
       PACKAGE_MANAGER=apt
-      
+
       # The section below is used to generate passbolt sources.list
       DISTRONAME=$(grep -E "^ID=" /etc/os-release | awk -F= '{print $2}')
       # CODENAME used for Debian family
       CODENAME=$(grep -E "^VERSION_CODENAME=" /etc/os-release | awk -F= '{print $2}' || true)
-  
+
       # We use buster debian package for bullseye
       if [ "${CODENAME}" = "bullseye" ]
       then
@@ -126,18 +155,14 @@ os_detect () {
   # RHEL Family get OS major version (7, 8, 9)
   if [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] || [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
-      if ! which bc > /dev/null 2>&1
-      then
-          ${PACKAGE_MANAGER} install -y bc
-      fi
       if [ "${PACKAGE_MANAGER}" = "zypper" ]
       then
         CLEAN_PARAM="--"
       fi
       ${PACKAGE_MANAGER} clean ${CLEAN_PARAM:-}all > /dev/null
-      OS_NAME=$(grep -E '^ID=' /etc/os-release | awk -F= '{print $2}')
-      OS_VERSION=$(grep -E '^VERSION_ID=' /etc/os-release | awk -F= '{print $2}' | sed 's/\"//g')
-      OS_VERSION_MAJOR=$(echo ${OS_VERSION:0:1} | bc)
+      OS_NAME="${ID}"
+      OS_VERSION="${VERSION_ID}"
+      OS_VERSION_MAJOR="${VERSION_ID%.*}"
   fi
 }
 
@@ -157,52 +182,56 @@ install_dependencies () {
       python3-certbot-nginx
   elif [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
-    cat << EOF | sudo tee /etc/zypp/repos.d/php.repo > /dev/null
+    cat << EOF | tee /etc/zypp/repos.d/php.repo > /dev/null
 [php]
 enabled=1
 autorefresh=0
 baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/openSUSE_Leap_${OS_VERSION}/
 EOF
-    cat << EOF | sudo tee /etc/zypp/repos.d/php-extensions-x86_64.repo > /dev/null
+    PHP_EXTENSION_REPO_VERSION="openSUSE_Leap_${OS_VERSION}"
+    if [ "${OS_VERSION}" = "15.4" ]
+    then
+      PHP_EXTENSION_REPO_VERSION="15.4"
+    fi
+    cat << EOF | tee /etc/zypp/repos.d/php-extensions-x86_64.repo > /dev/null
 [php-extensions-x86_64]
 enabled=1
 autorefresh=0
-baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/openSUSE_Leap_${OS_VERSION}/
+baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/${PHP_EXTENSION_REPO_VERSION}/
 EOF
   elif [ "${OS_NAME}" = "fedora" ]
   then
     if ! rpm -qa | grep remi-release > /dev/null
     then
-      sudo dnf install -y https://rpms.remirepo.net/fedora/remi-release-${OS_VERSION}.rpm
+      ${PACKAGE_MANAGER} install -y https://rpms.remirepo.net/fedora/remi-release-"${OS_VERSION}".rpm
     fi
-    sudo dnf install -y dnf-plugins-core
-    sudo dnf module reset php -y
-    sudo dnf module install php:remi-7.4 -y
-    sudo dnf config-manager --set-enabled remi
+    ${PACKAGE_MANAGER} install -y dnf-plugins-core
+    ${PACKAGE_MANAGER} module reset php -y
+    ${PACKAGE_MANAGER} module install php:remi-8.1 -y
+    ${PACKAGE_MANAGER} config-manager --set-enabled remi
     # pcre2 package needs to be upgraded to last version
     # there is a bug with preg_match() if we keep the current one installed
-    dnf clean all
-    dnf upgrade -y pcre2
+    ${PACKAGE_MANAGER} clean all
+    ${PACKAGE_MANAGER} upgrade -y pcre2
   elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
   then
     if [ "$(grep -E "^ID=" /etc/os-release | awk -F= '{print $2}' | sed 's/"//g')" = "ol" ]
     then
       # Oracle Linux
-      ${PACKAGE_MANAGER} install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OS_VERSION_MAJOR}.noarch.rpm
+      ${PACKAGE_MANAGER} install -y oracle-epel-release-el"${OS_VERSION_MAJOR}"
     else
       ${PACKAGE_MANAGER} install -y epel-release
     fi
-    ${PACKAGE_MANAGER} install -y https://rpms.remirepo.net/enterprise/remi-release-${OS_VERSION_MAJOR}.rpm
-    if [ ${OS_VERSION_MAJOR} -eq 7 ]
+    ${PACKAGE_MANAGER} install -y wget python3
+    ${PACKAGE_MANAGER} install -y https://rpms.remirepo.net/enterprise/remi-release-"${OS_VERSION_MAJOR}".rpm
+    if [ "${OS_VERSION_MAJOR}" -eq 7 ]
     then
-      ${PACKAGE_MANAGER} install -y certbot python-certbot-nginx wget
       ${PACKAGE_MANAGER} install -y yum-utils
       yum-config-manager --disable 'remi-php*'
-      yum-config-manager --enable   remi-php74
+      yum-config-manager --enable   remi-php81
     else
-      ${PACKAGE_MANAGER} install -y certbot python3-certbot-nginx wget
       ${PACKAGE_MANAGER} module -y reset php
-      ${PACKAGE_MANAGER} module -y install php:remi-7.4
+      ${PACKAGE_MANAGER} module -y install php:remi-8.1
     fi
   fi
 }
@@ -211,16 +240,14 @@ pull_updated_pub_key() {
   declare -a serverlist=("keys.mailvelope.com" "keys.openpgp.org" "pgp.mit.edu")
   for serverin in "${serverlist[@]}"
   do
-    mkdir -m 0700 -p /root/.gnupg
+    if [ ! -d /root/.gnupg ]
+    then
+      mkdir -m 0700 /root/.gnupg
+    fi
     # Handle gpg error in case of a server key failure
     # Without this check, and because we are using set -euo pipefail
     # The script fail in case of failure
-    gpg --no-default-keyring --keyring ${PASSBOLT_KEYRING_FILE} --keyserver hkps://${serverin} --recv-keys ${PASSBOLT_FINGERPRINT} \
-    || if [ $? -eq 0 ] ; then
-      break
-    fi
-    # This if statement is to break the loop in case of success
-    if [ ${PIPESTATUS[0]} -eq 0 ] ; then
+    if gpg --no-default-keyring --keyring ${PASSBOLT_KEYRING_FILE} --keyserver hkps://"${serverin}" --recv-keys ${PASSBOLT_FINGERPRINT}; then
       break
     fi
   done
@@ -241,9 +268,9 @@ Components: ${PASSBOLT_BRANCH}
 Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
-  elif [ "${OS_NAME}" = "fedora" ]
+  elif [ "${OS_NAME}" = "fedora" ] || [ "${OS_VERSION_MAJOR}" -eq 9 ]
   then
-    cat << EOF | sudo tee /etc/yum.repos.d/passbolt.repo > /dev/null
+    cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
 name=Passbolt Server
 baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el8/${PASSBOLT_BRANCH}
@@ -253,7 +280,7 @@ gpgkey=https://download.passbolt.com/pub.key
 EOF
   elif [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
-    cat << EOF | sudo tee /etc/zypp/repos.d/passbolt.repo > /dev/null
+    cat << EOF | tee /etc/zypp/repos.d/passbolt.repo > /dev/null
 [passbolt-server]
 name=Passbolt Server
 baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/opensuse/${PASSBOLT_BRANCH}
@@ -261,7 +288,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://download.passbolt.com/pub.key
 EOF
-  elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
+elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] || [ "${OS_VERSION_MAJOR}" != 9 ]
   then
     cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]

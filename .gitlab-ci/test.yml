@@ -1,0 +1,148 @@
+.test-deb:
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-bullseye-11-slim:latest
+  variables:
+    PASSBOLT_FLAVOUR: ""
+    PACKAGE_MANAGER: "apt"
+    TERM: xterm
+  script:
+    - ${PACKAGE_MANAGER} update
+    - ${PACKAGE_MANAGER} install -y procps
+    - bash passbolt-repo-setup."${PASSBOLT_FLAVOUR}".sh
+    - DEBIAN_FRONTEND=noninteractive ${PACKAGE_MANAGER} install -y passbolt-"${PASSBOLT_FLAVOUR}"-server
+  needs:
+    - ShellCheck CE
+    - ShellCheck PRO
+    - Repository filesystem scan
+    - Configuration scan
+
+.test-deb-ce:
+  stage: Test CE
+  extends: .test-deb
+  variables:
+    PASSBOLT_FLAVOUR: "ce"
+
+.test-deb-pro:
+  stage: Test PRO
+  extends: .test-deb
+  variables:
+    PASSBOLT_FLAVOUR: "pro"
+
+.test-rpm:
+  extends: .test-deb
+  variables:
+    PACKAGE_MANAGER: "dnf"
+    ZYPPER_OPTIONS: ""
+  script:
+    - ${PACKAGE_MANAGER} install -y which ncurses procps
+    - bash passbolt-repo-setup."${PASSBOLT_FLAVOUR}".sh
+    - ${PACKAGE_MANAGER} ${ZYPPER_OPTIONS} install -y passbolt-"${PASSBOLT_FLAVOUR}"-server
+
+.test-rpm-ce:
+  extends: .test-rpm
+  stage: Test CE
+  variables:
+    PASSBOLT_FLAVOUR: "ce"
+
+.test-rpm-pro:
+  extends: .test-rpm
+  stage: Test PRO
+  variables:
+    PASSBOLT_FLAVOUR: "pro"
+
+Debian 10 CE:
+  extends: .test-deb-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-buster-10:latest
+
+Debian 10 PRO:
+  extends: .test-deb-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-buster-10:latest
+
+Debian 11 CE:
+  extends: .test-deb-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-bullseye-11-slim:latest
+
+Debian 11 PRO:
+  extends: .test-deb-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-bullseye-11-slim:latest
+
+Ubuntu 20.04 CE:
+  extends: .test-deb-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/ubuntu-focal-2004
+
+Ubuntu 20.04 PRO:
+  extends: .test-deb-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/ubuntu-focal-2004
+
+Ubuntu 22.04 CE:
+  extends: .test-deb-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/ubuntu-jammy-2204
+
+Ubuntu 22.04 PRO:
+  extends: .test-deb-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/ubuntu-jammy-2204
+
+RockyLinux 8 CE:
+  extends: .test-rpm-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/rockylinux-8
+
+RockyLinux 8 PRO:
+  extends: .test-rpm-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/rockylinux-8
+
+AlmaLinux 8 CE:
+  extends: .test-rpm-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/almalinux-8
+
+AlmaLinux 8 PRO:
+  extends: .test-rpm-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/almalinux-8
+
+CentOS 7 CE:
+  extends: .test-rpm-ce
+  variables:
+    PACKAGE_MANAGER: "yum"
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/centos-7
+
+CentOS 7 PRO:
+  extends: .test-rpm-pro
+  variables:
+    PACKAGE_MANAGER: "yum"
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/centos-7
+
+openSUSE 15 CE:
+  extends: .test-rpm-ce
+  variables:
+    PACKAGE_MANAGER: "zypper"
+    ZYPPER_OPTIONS: "-n --no-gpg-checks"
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/opensuse-leap-15
+
+openSUSE 15 PRO:
+  extends: .test-rpm-pro
+  variables:
+    PACKAGE_MANAGER: "zypper"
+    ZYPPER_OPTIONS: "-n --no-gpg-checks"
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/opensuse-leap-15
+
+Fedora 34 CE:
+  extends: .test-rpm-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-34
+
+Fedora 34 PRO:
+  extends: .test-rpm-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-34
+
+Fedora 35 CE:
+  extends: .test-rpm-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-35
+
+Fedora 35 PRO:
+  extends: .test-rpm-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-35
+
+Fedora 36 CE:
+  extends: .test-rpm-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-36
+
+Fedora 36 PRO:
+  extends: .test-rpm-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-36

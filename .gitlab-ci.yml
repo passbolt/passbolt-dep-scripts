@@ -1,0 +1,6 @@
+stages:
+  - Quality
+  - Test CE
+  - Test PRO
+
+include: '.gitlab-ci/**.yml'
