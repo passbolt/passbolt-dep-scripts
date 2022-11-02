@@ -124,14 +124,15 @@ os_detect () {
       # CODENAME used for Debian family
       CODENAME=$(grep -E "^VERSION_CODENAME=" /etc/os-release | awk -F= '{print $2}' || true)
 
+      # Handle Raspberry PI raspbian OS
+      if [ "${DISTRONAME}" = "raspbian" ]
+      then
+          DISTRONAME="debian"
+      fi
       # We use buster debian package for bullseye
       if [ "${CODENAME}" = "bullseye" ]
       then
           CODENAME="buster"
-      # Handle Raspberry PI raspbian OS
-      elif [ "${DISTRONAME}" = "raspbian" ]
-      then
-          DISTRONAME="debian"
       # We use focal ubuntu package for jammy
       elif [ "${CODENAME}" = "jammy" ]
       then
