@@ -1,0 +1,19 @@
+name: build
+run-name: "Create release ${{ github.version }}"
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  create-shasums:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          sha512sum passbolt-repo-setup.ce.sh > passbolt-ce-SHA512SUM.txt
+          sha512sum passbolt-repo-setup.pro.sh > passbolt-pro-SHA512SUM.txt
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "passbolt-repo-*, *SHA512SUM.txt"
