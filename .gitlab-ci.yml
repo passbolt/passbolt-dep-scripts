@@ -2,5 +2,6 @@ stages:
   - Quality
   - Test CE
   - Test PRO
+  - Publish
 
 include: '.gitlab-ci/**.yml'
