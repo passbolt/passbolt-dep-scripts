@@ -51,8 +51,8 @@ done
 
 function is_supported_distro() {
     local DISTROS=(
-            "debian10"
             "debian11"
+            "debian12"
             "raspbian"
             "ubuntu20"
             "ubuntu22"
@@ -131,6 +131,9 @@ os_detect () {
       fi
       # We use buster debian package for bullseye
       if [ "${CODENAME}" = "bullseye" ]
+      then
+          CODENAME="buster"
+      elif [ "${CODENAME}" = "bookworm" ]
       then
           CODENAME="buster"
       # We use focal ubuntu package for jammy

@@ -49,14 +49,6 @@
   variables:
     PASSBOLT_FLAVOUR: "pro"
 
-Debian 10 CE:
-  extends: .test-deb-ce
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-buster-10:latest
-
-Debian 10 PRO:
-  extends: .test-deb-pro
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-buster-10:latest
-
 Debian 11 CE:
   extends: .test-deb-ce
   image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-bullseye-11-slim:latest
@@ -64,6 +56,14 @@ Debian 11 CE:
 Debian 11 PRO:
   extends: .test-deb-pro
   image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-bullseye-11-slim:latest
+
+Debian 12 CE:
+  extends: .test-deb-ce
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-bookworm-12:latest
+
+Debian 12 PRO:
+  extends: .test-deb-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/debian-bookworm-12:latest
 
 Raspbian CE:
   extends: .test-deb-ce
