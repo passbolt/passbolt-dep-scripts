@@ -66,9 +66,9 @@ function is_supported_distro() {
             "ol9"
             "almalinux8"
             "almalinux9"
-            "fedora34"
-            "fedora35"
             "fedora36"
+            "fedora37"
+            "fedora38"
             "opensuse-leap15"
           )
     for DISTRO in "${DISTROS[@]}"
@@ -105,7 +105,7 @@ compliance_check () {
       then
         _error_exit "${PHP_ERROR}"
       fi
-      if rpm -qa | grep remi-release > /dev/null 
+      if rpm -qa | grep remi-release > /dev/null
       then
         _error_exit "remi-release is already installed, please remove it before executing this script"
       fi
@@ -192,7 +192,7 @@ enabled=1
 autorefresh=0
 baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/openSUSE_Leap_${OS_VERSION}/
 EOF
-    PHP_EXTENSION_REPO_VERSION="openSUSE_Leap_${OS_VERSION}"
+    PHP_EXTENSION_REPO_VERSION="${OS_VERSION}"
     if [ "${OS_VERSION}" = "15.4" ]
     then
       PHP_EXTENSION_REPO_VERSION="15.4"
