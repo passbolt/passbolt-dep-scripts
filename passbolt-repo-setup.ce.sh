@@ -66,9 +66,9 @@ function is_supported_distro() {
             "ol9"
             "almalinux8"
             "almalinux9"
-            "fedora34"
-            "fedora35"
             "fedora36"
+            "fedora37"
+            "fedora38"
             "opensuse-leap15"
           )
     for DISTRO in "${DISTROS[@]}"
@@ -105,7 +105,7 @@ compliance_check () {
       then
         _error_exit "${PHP_ERROR}"
       fi
-      if rpm -qa | grep remi-release > /dev/null 
+      if rpm -qa | grep remi-release > /dev/null
       then
         _error_exit "remi-release is already installed, please remove it before executing this script"
       fi
@@ -317,13 +317,7 @@ EOF
 }
 
 install_passbolt () {
-  if [ "${PACKAGE_MANAGER}" = "apt" ]
-  then
     ${PACKAGE_MANAGER} install -y passbolt-${PASSBOLT_FLAVOUR}-server
-  elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] || [ "${PACKAGE_MANAGER}" = "zypper" ]
-  then
-    ${PACKAGE_MANAGER} install -y passbolt-${PASSBOLT_FLAVOUR}-server
-  fi
 }
 
 setup_complete () {

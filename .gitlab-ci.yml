@@ -1,7 +1,16 @@
+default:
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - api_failure
+      - stale_schedule
+
 stages:
   - Quality
   - Test CE
   - Test PRO
   - Publish
 
-include: '.gitlab-ci/**.yml'
+include: ".gitlab-ci/**.yml"
