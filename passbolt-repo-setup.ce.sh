@@ -192,7 +192,7 @@ enabled=1
 autorefresh=0
 baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/openSUSE_Leap_${OS_VERSION}/
 EOF
-    PHP_EXTENSION_REPO_VERSION="openSUSE_Leap_${OS_VERSION}"
+    PHP_EXTENSION_REPO_VERSION="${OS_VERSION}"
     if [ "${OS_VERSION}" = "15.4" ]
     then
       PHP_EXTENSION_REPO_VERSION="15.4"
