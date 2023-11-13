@@ -66,7 +66,6 @@ function is_supported_distro() {
             "ol9"
             "almalinux8"
             "almalinux9"
-            "fedora36"
             "fedora37"
             "fedora38"
             "opensuse-leap15"
