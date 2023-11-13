@@ -135,10 +135,6 @@ openSUSE 15 PRO:
     ZYPPER_OPTIONS: "-n --no-gpg-checks"
   image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/opensuse-leap-15
 
-Fedora 36 CE:
-  extends: .test-rpm-ce
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-36
-
 Fedora 37 CE:
   extends: .test-rpm-ce
   image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-37
@@ -146,10 +142,6 @@ Fedora 37 CE:
 Fedora 38 CE:
   extends: .test-rpm-ce
   image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-38
-
-Fedora 36 PRO:
-  extends: .test-rpm-pro
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-36
 
 Fedora 37 PRO:
   extends: .test-rpm-pro
