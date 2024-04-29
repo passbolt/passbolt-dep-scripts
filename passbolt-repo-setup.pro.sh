@@ -64,6 +64,7 @@ function is_supported_distro() {
             "rocky9"
             "ol8"
             "ol9"
+            "fedora39"
             "almalinux8"
             "almalinux9"
             "opensuse-leap15"
