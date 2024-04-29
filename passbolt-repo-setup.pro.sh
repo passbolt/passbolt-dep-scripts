@@ -190,9 +190,9 @@ install_dependencies () {
     then
       # If you are running the minimal image, you need to uncomment these commands
         # adding module web scripting repo and his dependency module server application for PHP
-        # SUSEConnect --product sle-module-server-applications/15.6/x86_64
-        # SUSEConnect --product sle-module-web-scripting/15.6/x86_64
-        # SUSEConnect --product PackageHub/15.6/x86_64
+        SUSEConnect --product sle-module-server-applications/15.6/x86_64
+        SUSEConnect --product sle-module-web-scripting/15.6/x86_64
+        SUSEConnect --product PackageHub/15.6/x86_64
         # download the prerequisites packages
         ${PACKAGE_MANAGER} --non-interactive install php8-fpm php8
         # create a default default php-fpm conf as it is required during the installer
