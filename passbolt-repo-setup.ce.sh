@@ -64,11 +64,12 @@ function is_supported_distro() {
             "rocky9"
             "ol8"
             "ol9"
+            "fedora39"
             "almalinux8"
             "almalinux9"
-            "fedora37"
-            "fedora38"
             "opensuse-leap15"
+            # Adding SLES15
+            "sles15"
           )
     for DISTRO in "${DISTROS[@]}"
     do
@@ -185,6 +186,19 @@ install_dependencies () {
       python3-certbot-nginx
   elif [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
+    # Adding a condition to differentiate openSUSE against SLES
+    if [ "${ID}" = "sles" ] && [ "${VERSION_ID%.*}" = "15" ]
+    then
+      # If you are running the minimal image, you need to uncomment these commands
+        # adding module web scripting repo and his dependency module server application for PHP
+        # SUSEConnect --product sle-module-server-applications/15.6/x86_64
+        # SUSEConnect --product sle-module-web-scripting/15.6/x86_64
+        # SUSEConnect --product PackageHub/15.6/x86_64
+        # download the prerequisites packages
+        ${PACKAGE_MANAGER} --non-interactive install php8-fpm php8
+        # create a default default php-fpm conf as it is required during the installer
+        cp /etc/php8/fpm/php-fpm.conf /etc/php8/fpm/php-fpm.conf.default
+    fi
     cat << EOF | tee /etc/zypp/repos.d/php.repo > /dev/null
 [php]
 enabled=1
@@ -202,7 +216,7 @@ enabled=1
 autorefresh=0
 baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/${PHP_EXTENSION_REPO_VERSION}/
 EOF
-  elif [ "${OS_NAME}" = "fedora" ]
+ elif [ "${OS_NAME}" = "fedora" ]
   then
     if ! rpm -qa | grep remi-release > /dev/null
     then
@@ -271,9 +285,9 @@ Components: ${PASSBOLT_BRANCH}
 Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
-  elif [ "${OS_NAME}" = "fedora" ] || [ "${OS_VERSION_MAJOR}" -eq 9 ]
-  then
-    cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
+    elif [ "${OS_NAME}" = "fedora" ] || [ "${OS_VERSION_MAJOR}" -eq 9 ]
+      then
+        cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
 name=Passbolt Server
 baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el8/${PASSBOLT_BRANCH}
@@ -308,7 +322,7 @@ EOF
     cat << EOF | tee /etc/yum.repos.d/mariadb.repo > /dev/null
 [mariadb]
 name = MariaDB
-baseurl = http://yum.mariadb.org/10.3/centos7-amd64
+baseurl = http://yum.mariadb.org/10.4/centos7-amd64
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 EOF

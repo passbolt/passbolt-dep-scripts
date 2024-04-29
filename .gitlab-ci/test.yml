@@ -32,8 +32,9 @@
   variables:
     PACKAGE_MANAGER: "dnf"
     ZYPPER_OPTIONS: ""
+    SUSE_PACKAGE: ""
   script:
-    - ${PACKAGE_MANAGER} install -y which ncurses procps
+    - ${PACKAGE_MANAGER} install -y which ncurses procps ${SUSE_PACKAGE}
     - bash passbolt-repo-setup."${PASSBOLT_FLAVOUR}".sh
     - ${PACKAGE_MANAGER} ${ZYPPER_OPTIONS} install -y passbolt-"${PASSBOLT_FLAVOUR}"-server
 
@@ -135,18 +136,26 @@ openSUSE 15 PRO:
     ZYPPER_OPTIONS: "-n --no-gpg-checks"
   image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/opensuse-leap-15
 
-Fedora 37 CE:
+Fedora 39 CE:
   extends: .test-rpm-ce
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-37
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-39
+  
+Fedora 39 PRO:
+  extends: .test-rpm-pro
+  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-39
 
-Fedora 38 CE:
+SLES15 SP6 CE:
   extends: .test-rpm-ce
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-38
+  variables:
+    PACKAGE_MANAGER: "zypper"
+    ZYPPER_OPTIONS: "-n --no-gpg-checks"
+    SUSE_PACKAGE: "sudo"
+  image: registry.suse.com/bci/bci-base:15.6
 
-Fedora 37 PRO:
+SLES15 SP6 PRO:
   extends: .test-rpm-pro
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-37
-
-Fedora 38 PRO:
-  extends: .test-rpm-pro
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/fedora-38
+  variables:
+    PACKAGE_MANAGER: "zypper"
+    ZYPPER_OPTIONS: "-n --no-gpg-checks"
+    SUSE_PACKAGE: "sudo"
+  image: registry.suse.com/bci/bci-base:15.6
