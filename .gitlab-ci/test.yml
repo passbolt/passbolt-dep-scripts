@@ -34,7 +34,7 @@
     ZYPPER_OPTIONS: ""
     SUSE_PACKAGE: ""
   script:
-    - ${PACKAGE_MANAGER} install -y which ncurses procps ${SUSE_PACKAGE}
+    - ${PACKAGE_MANAGER} install -y ncurses procps ${SUSE_PACKAGE}
     - bash passbolt-repo-setup."${PASSBOLT_FLAVOUR}".sh
     - ${PACKAGE_MANAGER} ${ZYPPER_OPTIONS} install -y passbolt-"${PASSBOLT_FLAVOUR}"-server
 
