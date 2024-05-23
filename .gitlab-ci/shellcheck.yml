@@ -1,6 +1,6 @@
 .shellcheck:
   stage: Quality
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/alpine-3.16:latest
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/alpine:3.16
   variables:
     SCRIPTFILE: ""
   script:

@@ -1,6 +1,6 @@
 .to-gcs:
   stage: Publish
-  image: registry.gitlab.com/passbolt/passbolt-ci-docker-images/gcloud
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/gcloud
   variables:
     EDITION: "ce"
     BUCKET: "download.passbolt.com"
