@@ -56,6 +56,7 @@ function is_supported_distro() {
             "raspbian"
             "ubuntu20"
             "ubuntu22"
+            "ubuntu24"
             "centos7"
             "rhel7"
             "rhel8"
@@ -138,6 +139,10 @@ os_detect () {
           CODENAME="buster"
       # We use focal ubuntu package for jammy
       elif [ "${CODENAME}" = "jammy" ]
+      then
+          CODENAME="focal"
+      # We use focal ubuntu package for noble
+      elif [ "${CODENAME}" = "noble" ]
       then
           CODENAME="focal"
       fi
