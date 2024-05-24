@@ -1,6 +1,6 @@
 .to-gcs:
   stage: Publish
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/gcloud
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
   variables:
     EDITION: "ce"
     BUCKET: "download.passbolt.com"
