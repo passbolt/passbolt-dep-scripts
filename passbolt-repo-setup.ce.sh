@@ -236,24 +236,12 @@ EOF
     ${PACKAGE_MANAGER} upgrade -y pcre2
   elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
   then
-    if [ "$(grep -E "^ID=" /etc/os-release | awk -F= '{print $2}' | sed 's/"//g')" = "ol" ]
-    then
-      # Oracle Linux
-      ${PACKAGE_MANAGER} install -y oracle-epel-release-el"${OS_VERSION_MAJOR}"
-    else
-      ${PACKAGE_MANAGER} install -y epel-release
-    fi
     ${PACKAGE_MANAGER} install -y wget python3
-    ${PACKAGE_MANAGER} install -y https://rpms.remirepo.net/enterprise/remi-release-"${OS_VERSION_MAJOR}".rpm
-    if [ "${OS_VERSION_MAJOR}" -eq 7 ]
-    then
-      ${PACKAGE_MANAGER} install -y yum-utils
-      yum-config-manager --disable 'remi-php*'
-      yum-config-manager --enable   remi-php81
-    else
-      ${PACKAGE_MANAGER} module -y reset php
-      ${PACKAGE_MANAGER} module -y install php:remi-8.1
-    fi
+    
+    # Install PHP 8.2 from AppStream
+    ${PACKAGE_MANAGER} module -y reset php
+    ${PACKAGE_MANAGER} module -y enable php:8.2
+    ${PACKAGE_MANAGER} module -y install php:8.2
   fi
 }
 
@@ -289,9 +277,9 @@ Components: ${PASSBOLT_BRANCH}
 Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
-    elif [ "${OS_NAME}" = "fedora" ] || [ "${OS_VERSION_MAJOR}" -eq 9 ]
-      then
-        cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
+  elif [ "${OS_NAME}" = "fedora" ] || [ "${OS_VERSION_MAJOR}" -eq 9 ]
+  then
+    cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
 name=Passbolt Server
 baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el8/${PASSBOLT_BRANCH}
@@ -309,7 +297,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://download.passbolt.com/pub.key
 EOF
-elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] || [ "${OS_VERSION_MAJOR}" != 9 ]
+elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
   then
     cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
