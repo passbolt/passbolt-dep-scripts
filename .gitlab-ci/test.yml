@@ -70,6 +70,38 @@ Raspbian PRO:
   before_script:
     - sed -i "s/ID=debian/ID=raspbian/" /etc/os-release
 
+Ubuntu 24.04 CE:
+  extends: .test-deb-ce
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:noble
+
+Ubuntu 24.04 PRO:
+  extends: .test-deb-pro
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:noble
+
+RockyLinux 9 CE:
+  extends: .test-rpm-ce
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/rockylinux:9
+
+RockyLinux 9 PRO:
+  extends: .test-rpm-pro
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/rockylinux:9
+
+AlmaLinux 9 CE:
+  extends: .test-rpm-ce
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/almalinux:9
+
+AlmaLinux 9 PRO:
+  extends: .test-rpm-pro
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/almalinux:9
+
+Oracle 9 CE:
+  extends: .test-rpm-ce
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/oraclelinux:9
+
+Oracle 9 PRO:
+  extends: .test-rpm-pro
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/oraclelinux:9
+
 openSUSE 15 CE:
   extends: .test-rpm-ce
   variables:
@@ -99,3 +131,4 @@ SLES15 SP6 PRO:
     ZYPPER_OPTIONS: "-n --no-gpg-checks"
     SUSE_PACKAGE: "sudo"
   image: registry.suse.com/bci/bci-base:15.6
+  
