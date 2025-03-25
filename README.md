@@ -37,16 +37,14 @@ This repository contains bash scripts to configure a vanilla Linux server in ord
 
 This script has been reported to work on the following operating systems:
 
-* Debian 10 / 11 / 12
+* Debian 12
 * Raspbian (Raspberry Pi)
-* Ubuntu 20.04 / 22.04
-* CentOS 7
-* Red Hat 7 / 8
-* RockyLinux 8
-* AlmaLinux 8
-* Oracle Linux 8
+* Ubuntu 24.04
+* Red Hat 9
+* RockyLinux 9
+* AlmaLinux 9
+* Oracle Linux 9
 * OpenSUSE 15
-* Fedora 39
 * SUSE Linux Enterprise Server 15 SP6
 
 ### System checks

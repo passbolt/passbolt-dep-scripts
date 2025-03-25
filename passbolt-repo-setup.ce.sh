@@ -51,22 +51,12 @@ done
 
 function is_supported_distro() {
     local DISTROS=(
-            "debian11"
             "debian12"
             "raspbian"
-            "ubuntu20"
-            "ubuntu22"
             "ubuntu24"
-            "centos7"
-            "rhel7"
-            "rhel8"
             "rhel9"
-            "rocky8"
             "rocky9"
-            "ol8"
             "ol9"
-            "fedora39"
-            "almalinux8"
             "almalinux9"
             "opensuse-leap15"
             # Adding SLES15
