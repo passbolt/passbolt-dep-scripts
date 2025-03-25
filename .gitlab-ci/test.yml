@@ -50,14 +50,6 @@
   variables:
     PASSBOLT_FLAVOUR: "pro"
 
-Debian 11 CE:
-  extends: .test-deb-ce
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bullseye-slim
-
-Debian 11 PRO:
-  extends: .test-deb-pro
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bullseye-slim
-
 Debian 12 CE:
   extends: .test-deb-ce
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bookworm
@@ -78,49 +70,37 @@ Raspbian PRO:
   before_script:
     - sed -i "s/ID=debian/ID=raspbian/" /etc/os-release
 
-Ubuntu 20.04 CE:
+Ubuntu 24.04 CE:
   extends: .test-deb-ce
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:focal
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:noble
 
-Ubuntu 20.04 PRO:
+Ubuntu 24.04 PRO:
   extends: .test-deb-pro
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:focal
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:noble
 
-Ubuntu 22.04 CE:
-  extends: .test-deb-ce
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:jammy
-
-Ubuntu 22.04 PRO:
-  extends: .test-deb-pro
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/ubuntu:jammy
-
-RockyLinux 8 CE:
+RockyLinux 9 CE:
   extends: .test-rpm-ce
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/rockylinux:8
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/rockylinux:9
 
-RockyLinux 8 PRO:
+RockyLinux 9 PRO:
   extends: .test-rpm-pro
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/rockylinux:8
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/rockylinux:9
 
-AlmaLinux 8 CE:
+AlmaLinux 9 CE:
   extends: .test-rpm-ce
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/almalinux:8
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/almalinux:9
 
-AlmaLinux 8 PRO:
+AlmaLinux 9 PRO:
   extends: .test-rpm-pro
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/almalinux:8
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/almalinux:9
 
-CentOS 7 CE:
+Oracle 9 CE:
   extends: .test-rpm-ce
-  variables:
-    PACKAGE_MANAGER: "yum"
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/centos:7
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/oraclelinux:9
 
-CentOS 7 PRO:
+Oracle 9 PRO:
   extends: .test-rpm-pro
-  variables:
-    PACKAGE_MANAGER: "yum"
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/centos:7
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/oraclelinux:9
 
 openSUSE 15 CE:
   extends: .test-rpm-ce
@@ -135,14 +115,6 @@ openSUSE 15 PRO:
     PACKAGE_MANAGER: "zypper"
     ZYPPER_OPTIONS: "-n --no-gpg-checks"
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/opensuse/leap:15
-
-Fedora 39 CE:
-  extends: .test-rpm-ce
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/fedora:39
-  
-Fedora 39 PRO:
-  extends: .test-rpm-pro
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/fedora:39
 
 SLES15 SP6 CE:
   extends: .test-rpm-ce
@@ -159,3 +131,4 @@ SLES15 SP6 PRO:
     ZYPPER_OPTIONS: "-n --no-gpg-checks"
     SUSE_PACKAGE: "sudo"
   image: registry.suse.com/bci/bci-base:15.6
+  
