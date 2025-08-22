@@ -1,5 +1,5 @@
 .test-deb:
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bullseye-slim
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bookworm-slim
   variables:
     PASSBOLT_FLAVOUR: ""
     PACKAGE_MANAGER: "apt"
@@ -60,13 +60,13 @@ Debian 12 PRO:
 
 Raspbian CE:
   extends: .test-deb-ce
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bullseye-slim
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bookworm-slim
   before_script:
     - sed -i "s/ID=debian/ID=raspbian/" /etc/os-release
 
 Raspbian PRO:
   extends: .test-deb-pro
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bullseye-slim
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bookworm-slim
   before_script:
     - sed -i "s/ID=debian/ID=raspbian/" /etc/os-release
 
