@@ -236,7 +236,7 @@ EOF
 }
 
 pull_updated_pub_key() {
-  declare -a serverlist=("keys.mailvelope.com" "keys.openpgp.org" "pgp.mit.edu")
+  declare -a serverlist=("keys.openpgp.org" "keyserver.ubuntu.com")
   for serverin in "${serverlist[@]}"
   do
     if [ ! -d /root/.gnupg ]
@@ -246,7 +246,7 @@ pull_updated_pub_key() {
     # Handle gpg error in case of a server key failure
     # Without this check, and because we are using set -euo pipefail
     # The script fail in case of failure
-    if gpg --no-default-keyring --keyring ${PASSBOLT_KEYRING_FILE} --keyserver hkps://"${serverin}" --recv-keys ${PASSBOLT_FINGERPRINT}; then
+    if curl -sS "https://${serverin}/pks/lookup?op=get&options=mr&search=0x${PASSBOLT_FINGERPRINT}" | gpg --dearmor --yes --output ${PASSBOLT_KEYRING_FILE}; then
       break
     fi
   done
