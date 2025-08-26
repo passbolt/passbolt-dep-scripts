@@ -58,6 +58,14 @@ Debian 12 PRO:
   extends: .test-deb-pro
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bookworm
 
+Debian 13 CE:
+  extends: .test-deb-ce
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:trixie-slim
+
+Debian 13 PRO:
+  extends: .test-deb-pro
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:trixie-slim
+
 Raspbian CE:
   extends: .test-deb-ce
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/debian:bookworm-slim
