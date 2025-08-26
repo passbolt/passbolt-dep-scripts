@@ -52,6 +52,7 @@ done
 function is_supported_distro() {
     local DISTROS=(
             "debian12"
+            "debian13"
             "raspbian"
             "ubuntu24"
             "rhel9"
@@ -135,6 +136,10 @@ os_detect () {
       elif [ "${CODENAME}" = "noble" ]
       then
           CODENAME="focal"
+      # We use buster debian package for trixie
+      elif [ "${CODENAME}" = "trixie" ]
+      then
+          CODENAME="buster"
       fi
   elif command -v zypper >/dev/null 2>&1
   then
@@ -173,9 +178,7 @@ install_dependencies () {
       apt-transport-https \
       ca-certificates \
       curl \
-      gnupg-agent \
-      software-properties-common \
-      haveged \
+      gnupg \
       certbot \
       wget \
       python3-certbot-nginx
