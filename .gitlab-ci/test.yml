@@ -12,8 +12,6 @@
   needs:
     - ShellCheck CE
     - ShellCheck PRO
-    - Repository filesystem scan
-    - Configuration scan
 
 .test-deb-ce:
   stage: Test CE
