@@ -55,6 +55,7 @@ function is_supported_distro() {
             "debian13"
             "raspbian"
             "ubuntu24"
+            "ubuntu26"
             "rhel9"
             "rocky9"
             "ol9"
@@ -136,6 +137,10 @@ os_detect () {
       elif [ "${CODENAME}" = "noble" ]
       then
           CODENAME="focal"
+      # We use focal ubuntu package for resolute
+      elif [ "${CODENAME}" = "resolute" ]
+      then
+          CODENAME="focal"
       # We use buster debian package for trixie
       elif [ "${CODENAME}" = "trixie" ]
       then
@@ -163,7 +168,7 @@ os_detect () {
       then
         CLEAN_PARAM="--"
       fi
-      ${PACKAGE_MANAGER} clean ${CLEAN_PARAM:-}all > /dev/null
+      ${PACKAGE_MANAGER} clean "${CLEAN_PARAM:-}"all > /dev/null
       OS_NAME="${ID}"
       OS_VERSION="${VERSION_ID}"
       OS_VERSION_MAJOR="${VERSION_ID%.*}"
