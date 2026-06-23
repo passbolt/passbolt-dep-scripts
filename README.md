@@ -40,6 +40,7 @@ This script has been reported to work on the following operating systems:
 * Debian 12
 * Raspbian (Raspberry Pi)
 * Ubuntu 24.04
+* Ubuntu 26.04
 * Red Hat 9
 * RockyLinux 9
 * AlmaLinux 9
