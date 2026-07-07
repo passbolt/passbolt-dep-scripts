@@ -169,7 +169,6 @@ os_detect () {
         CLEAN_PARAM="--"
       fi
       ${PACKAGE_MANAGER} clean "${CLEAN_PARAM:-}"all > /dev/null
-      OS_NAME="${ID}"
       OS_VERSION="${VERSION_ID}"
       OS_VERSION_MAJOR="${VERSION_ID%.*}"
   fi
@@ -218,20 +217,6 @@ enabled=1
 autorefresh=0
 baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/${PHP_EXTENSION_REPO_VERSION}/
 EOF
-  elif [ "${OS_NAME}" = "fedora" ]
-  then
-    if ! rpm -qa | grep remi-release > /dev/null
-    then
-      ${PACKAGE_MANAGER} install -y https://rpms.remirepo.net/fedora/remi-release-"${OS_VERSION}".rpm
-    fi
-    ${PACKAGE_MANAGER} install -y dnf-plugins-core
-    ${PACKAGE_MANAGER} module reset php -y
-    ${PACKAGE_MANAGER} module install php:remi-8.1 -y
-    ${PACKAGE_MANAGER} config-manager --set-enabled remi
-    # pcre2 package needs to be upgraded to last version
-    # there is a bug with preg_match() if we keep the current one installed
-    ${PACKAGE_MANAGER} clean all
-    ${PACKAGE_MANAGER} upgrade -y pcre2
   elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
   then
     ${PACKAGE_MANAGER} install -y wget python3
@@ -275,7 +260,7 @@ Components: ${PASSBOLT_BRANCH}
 Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
-  elif [ "${OS_NAME}" = "fedora" ] || [ "${OS_VERSION_MAJOR}" -eq 9 ]
+  elif [ "${OS_VERSION_MAJOR}" -eq 9 ]
   then
     cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
