@@ -57,12 +57,17 @@ function is_supported_distro() {
             "ubuntu24"
             "ubuntu26"
             "rhel9"
+	    "rhel10"
             "rocky9"
+	    "rocky10"
             "ol9"
+	    "ol10"
             "almalinux9"
+	    "almalinux10"
             "opensuse-leap15"
-            # Adding SLES15
+	    "opensuse-leap16"
             "sles15"
+	    "sles16"
           )
     for DISTRO in "${DISTROS[@]}"
     do
@@ -189,7 +194,7 @@ install_dependencies () {
   elif [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
     # Adding a condition to differentiate openSUSE against SLES
-    if [ "${ID}" = "sles" ] && [ "${VERSION_ID%.*}" = "15" ]
+    if [ "${ID}" = "sles" ]
     then
       # If you are running the minimal image, you need to uncomment these commands
         # adding module web scripting repo and his dependency module server application for PHP
@@ -200,24 +205,25 @@ install_dependencies () {
         # create a default default php-fpm conf as it is required during the installer
         cp /etc/php8/fpm/php-fpm.conf /etc/php8/fpm/php-fpm.conf.default
     fi
+    if [ "${OS_VERSION}" = "15.6" ]
+    then
+	REPO_SUFFIX="openSUSE_Leap_15.6"
+    else
+	REPO_SUFFIX=${OS_VERSION}
+    fi
     cat << EOF | tee /etc/zypp/repos.d/php.repo > /dev/null
 [php]
 enabled=1
 autorefresh=0
-baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/openSUSE_Leap_${OS_VERSION}/
+baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/${REPO_SUFFIX}/
 EOF
-    PHP_EXTENSION_REPO_VERSION="${OS_VERSION}"
-    if [ "${OS_VERSION}" = "15.4" ]
-    then
-      PHP_EXTENSION_REPO_VERSION="15.4"
-    fi
     cat << EOF | tee /etc/zypp/repos.d/php-extensions-x86_64.repo > /dev/null
 [php-extensions-x86_64]
 enabled=1
 autorefresh=0
-baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/${PHP_EXTENSION_REPO_VERSION}/
+baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/${OS_VERSION}/
 EOF
-  elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
+  elif { [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] ;} && [ "${OS_VERSION_MAJOR}" != "10" ]
   then
     ${PACKAGE_MANAGER} install -y wget python3
     
@@ -260,16 +266,6 @@ Components: ${PASSBOLT_BRANCH}
 Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
-  elif [ "${OS_VERSION_MAJOR}" -eq 9 ]
-  then
-    cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
-[passbolt-server]
-name=Passbolt Server
-baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el8/${PASSBOLT_BRANCH}
-enabled=1
-gpgcheck=1
-gpgkey=https://download.passbolt.com/pub.key
-EOF
   elif [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
     cat << EOF | tee /etc/zypp/repos.d/passbolt.repo > /dev/null
@@ -285,7 +281,7 @@ elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
     cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
 name=Passbolt Server
-baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el${OS_VERSION_MAJOR}/${PASSBOLT_BRANCH}
+baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el8/${PASSBOLT_BRANCH}
 enabled=1
 gpgcheck=1
 gpgkey=https://download.passbolt.com/pub.key
