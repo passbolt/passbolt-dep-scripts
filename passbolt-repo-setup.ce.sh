@@ -64,9 +64,7 @@ function is_supported_distro() {
 	    # "ol10"
             "almalinux9"
 	    # "almalinux10"
-            "opensuse-leap15"
 	    "opensuse-leap16"
-            "sles15"
 	    "sles16"
           )
     for DISTRO in "${DISTROS[@]}"
@@ -205,17 +203,11 @@ install_dependencies () {
         # create a default default php-fpm conf as it is required during the installer
         cp /etc/php8/fpm/php-fpm.conf /etc/php8/fpm/php-fpm.conf.default
     fi
-    if [ "${OS_VERSION}" = "15.6" ]
-    then
-	REPO_SUFFIX="openSUSE_Leap_15.6"
-    else
-	REPO_SUFFIX=${OS_VERSION}
-    fi
     cat << EOF | tee /etc/zypp/repos.d/php.repo > /dev/null
 [php]
 enabled=1
 autorefresh=0
-baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/${REPO_SUFFIX}/
+baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/
 EOF
     cat << EOF | tee /etc/zypp/repos.d/php-extensions-x86_64.repo > /dev/null
 [php-extensions-x86_64]
@@ -266,6 +258,16 @@ Components: ${PASSBOLT_BRANCH}
 Signed-By: ${PASSBOLT_KEYRING_FILE}
 EOF
     apt update
+  elif [ "${OS_VERSION_MAJOR}" -eq 9 ]
+  then
+    cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
+[passbolt-server]
+name=Passbolt Server
+baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el8/${PASSBOLT_BRANCH}
+enabled=1
+gpgcheck=1
+gpgkey=https://download.passbolt.com/pub.key
+EOF
   elif [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
     cat << EOF | tee /etc/zypp/repos.d/passbolt.repo > /dev/null
@@ -276,7 +278,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://download.passbolt.com/pub.key
 EOF
-elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
+  elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
   then
     cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
