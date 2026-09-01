@@ -57,12 +57,15 @@ function is_supported_distro() {
             "ubuntu24"
             "ubuntu26"
             "rhel9"
+	    # "rhel10"
             "rocky9"
+	    # "rocky10"
             "ol9"
+	    # "ol10"
             "almalinux9"
-            "opensuse-leap15"
-            # Adding SLES15
-            "sles15"
+	    # "almalinux10"
+	    "opensuse-leap16"
+	    "sles16"
           )
     for DISTRO in "${DISTROS[@]}"
     do
@@ -189,7 +192,7 @@ install_dependencies () {
   elif [ "${PACKAGE_MANAGER}" = "zypper" ]
   then
     # Adding a condition to differentiate openSUSE against SLES
-    if [ "${ID}" = "sles" ] && [ "${VERSION_ID%.*}" = "15" ]
+    if [ "${ID}" = "sles" ]
     then
       # If you are running the minimal image, you need to uncomment these commands
         # adding module web scripting repo and his dependency module server application for PHP
@@ -204,20 +207,15 @@ install_dependencies () {
 [php]
 enabled=1
 autorefresh=0
-baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/openSUSE_Leap_${OS_VERSION}/
+baseurl=http://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/
 EOF
-    PHP_EXTENSION_REPO_VERSION="${OS_VERSION}"
-    if [ "${OS_VERSION}" = "15.4" ]
-    then
-      PHP_EXTENSION_REPO_VERSION="15.4"
-    fi
     cat << EOF | tee /etc/zypp/repos.d/php-extensions-x86_64.repo > /dev/null
 [php-extensions-x86_64]
 enabled=1
 autorefresh=0
-baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/${PHP_EXTENSION_REPO_VERSION}/
+baseurl=http://download.opensuse.org/repositories/server:/php:/extensions/${OS_VERSION}/
 EOF
-  elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
+  elif { [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] ;} && [ "${OS_VERSION_MAJOR}" != "10" ]
   then
     ${PACKAGE_MANAGER} install -y wget python3
     
@@ -280,12 +278,12 @@ enabled=1
 gpgcheck=1
 gpgkey=https://download.passbolt.com/pub.key
 EOF
-elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
+  elif [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ]
   then
     cat << EOF | tee /etc/yum.repos.d/passbolt.repo > /dev/null
 [passbolt-server]
 name=Passbolt Server
-baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el${OS_VERSION_MAJOR}/${PASSBOLT_BRANCH}
+baseurl=https://download.passbolt.com/${PASSBOLT_FLAVOUR}/rpm/el8/${PASSBOLT_BRANCH}
 enabled=1
 gpgcheck=1
 gpgkey=https://download.passbolt.com/pub.key
