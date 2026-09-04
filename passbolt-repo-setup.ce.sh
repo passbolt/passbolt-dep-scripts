@@ -132,10 +132,6 @@ os_detect () {
       elif [ "${CODENAME}" = "bookworm" ]
       then
           CODENAME="buster"
-      # We use focal ubuntu package for jammy
-      elif [ "${CODENAME}" = "jammy" ]
-      then
-          CODENAME="focal"
       # We use focal ubuntu package for noble
       elif [ "${CODENAME}" = "noble" ]
       then
