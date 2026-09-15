@@ -209,7 +209,7 @@ enabled=1
 autorefresh=0
 baseurl=https://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/
 gpgcheck=1
-gpgkey=http://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/repodata/repomd.xml.key
+gpgkey=https://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/repodata/repomd.xml.key
 EOF
     cat << EOF | tee /etc/zypp/repos.d/php-extensions-x86_64.repo > /dev/null
 [php-extensions-x86_64]
@@ -217,7 +217,7 @@ enabled=1
 autorefresh=0
 baseurl=https://download.opensuse.org/repositories/server:/php:/extensions/${OS_VERSION}/
 gpgcheck=1
-gpgkey=http://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/repodata/repomd.xml.key
+gpgkey=https://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/repodata/repomd.xml.key
 EOF
   elif { [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] ;} && [ "${OS_VERSION_MAJOR}" != "10" ]
   then
