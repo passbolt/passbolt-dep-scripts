@@ -217,7 +217,7 @@ enabled=1
 autorefresh=0
 baseurl=https://download.opensuse.org/repositories/server:/php:/extensions/${OS_VERSION}/
 gpgcheck=1
-gpgkey=https://download.opensuse.org/repositories/devel:/languages:/php/${OS_VERSION}/repodata/repomd.xml.key
+gpgkey=https://download.opensuse.org/repositories/server:/php:/extensions/${OS_VERSION}/repodata/repomd.xml.key
 EOF
   elif { [ "${PACKAGE_MANAGER}" = "yum" ] || [ "${PACKAGE_MANAGER}" = "dnf" ] ;} && [ "${OS_VERSION_MAJOR}" != "10" ]
   then
