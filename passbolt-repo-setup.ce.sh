@@ -12,6 +12,7 @@ LC_ALL="en_US.UTF-8"
 LC_CTYPE="en_US.UTF-8"
 PASSBOLT_FLAVOUR="ce"
 PASSBOLT_BRANCH="stable"
+PASSBOLT_KEYRING_DIR="/usr/share/keyrings/"
 PASSBOLT_KEYRING_FILE="/usr/share/keyrings/passbolt-repository.gpg"
 PASSBOLT_FINGERPRINT="3D1A0346C8E1802F774AEF21DE8B853FC155581D"
 
@@ -226,6 +227,20 @@ EOF
   fi
 }
 
+pub_key_verification() {
+  if gpg --show-keys --with-colons "$tmpkey" | awk -F: '/^fpr:/{print $10}' | grep -qx "${PASSBOLT_FINGERPRINT}"; then
+    if [ ! -d ${PASSBOLT_KEYRING_DIR} ]
+    then
+      mkdir -m $PASSBOLT_KEYRING_DIR
+    fi
+    touch "${PASSBOLT_KEYRING_FILE}"
+    cat $tmpkey | gpg --dearmor --yes --output "${PASSBOLT_KEYRING_FILE}"
+  else
+    echo "Fingerprint mismatch"
+    exit 1
+  fi
+}
+
 pull_updated_pub_key() {
   declare -a serverlist=("keys.openpgp.org" "keyserver.ubuntu.com")
   for serverin in "${serverlist[@]}"
@@ -237,7 +252,8 @@ pull_updated_pub_key() {
     # Handle gpg error in case of a server key failure
     # Without this check, and because we are using set -euo pipefail
     # The script fail in case of failure
-    if curl -sS "https://${serverin}/pks/lookup?op=get&options=mr&search=0x${PASSBOLT_FINGERPRINT}" | gpg --dearmor --yes --output ${PASSBOLT_KEYRING_FILE}; then
+    if tmpkey=$(mktemp) && curl -sS "https://keys.openpgp.org/pks/lookup?op=get&options=mr&search=0x${PASSBOLT_FINGERPRINT}" -o "$tmpkey"; then
+      pub_key_verification
       break
     fi
   done
