@@ -12,8 +12,8 @@ LC_ALL="en_US.UTF-8"
 LC_CTYPE="en_US.UTF-8"
 PASSBOLT_FLAVOUR="ce"
 PASSBOLT_BRANCH="stable"
-PASSBOLT_KEYRING_DIR="/usr/share/keyrings/"
-PASSBOLT_KEYRING_FILE="/usr/share/keyrings/passbolt-repository.gpg"
+PASSBOLT_KEYRING_DIR="/usr/share/keyrings"
+PASSBOLT_KEYRING_FILE="${PASSBOLT_KEYRING_DIR}/passbolt-repository.gpg"
 PASSBOLT_FINGERPRINT="3D1A0346C8E1802F774AEF21DE8B853FC155581D"
 
 # shellcheck source=/dev/null
@@ -228,13 +228,10 @@ EOF
 }
 
 pub_key_verification() {
-  if gpg --show-keys --with-colons "$tmpkey" | awk -F: '/^fpr:/{print $10}' | grep -qx "${PASSBOLT_FINGERPRINT}"; then
-    if [ ! -d ${PASSBOLT_KEYRING_DIR} ]
-    then
-      mkdir -m $PASSBOLT_KEYRING_DIR
-    fi
-    touch "${PASSBOLT_KEYRING_FILE}"
-    cat "$tmpkey" | gpg --dearmor --yes --output "${PASSBOLT_KEYRING_FILE}"
+  local key_file="$1"
+  if gpg --show-keys --with-colons "${key_file}" | awk -F: '/^fpr:/{print $10}' | grep -qx "${PASSBOLT_FINGERPRINT}"; then
+    mkdir -p "${PASSBOLT_KEYRING_DIR}"
+    gpg --dearmor --yes --output "${PASSBOLT_KEYRING_FILE}" "${key_file}"
   else
     echo "Fingerprint mismatch"
     exit 1
@@ -243,20 +240,22 @@ pub_key_verification() {
 
 pull_updated_pub_key() {
   declare -a serverlist=("keys.openpgp.org" "keyserver.ubuntu.com")
+  if [ ! -d /root/.gnupg ]
+  then
+    mkdir -m 0700 /root/.gnupg
+  fi
+  TMP_KEYFILE=$(mktemp)
   for serverin in "${serverlist[@]}"
   do
-    if [ ! -d /root/.gnupg ]
-    then
-      mkdir -m 0700 /root/.gnupg
-    fi
     # Handle gpg error in case of a server key failure
     # Without this check, and because we are using set -euo pipefail
     # The script fail in case of failure
-    if tmpkey=$(mktemp) && curl -sS "https://${serverin}/pks/lookup?op=get&options=mr&search=0x${PASSBOLT_FINGERPRINT}" -o "$tmpkey"; then
-      pub_key_verification
+    if curl -sS "https://${serverin}/pks/lookup?op=get&options=mr&search=0x${PASSBOLT_FINGERPRINT}" -o "${TMP_KEYFILE}"; then
+      pub_key_verification "${TMP_KEYFILE}"
       break
     fi
   done
+  rm -f "${TMP_KEYFILE}"
 }
 
 
