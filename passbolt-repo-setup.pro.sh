@@ -234,7 +234,7 @@ pub_key_verification() {
       mkdir -m $PASSBOLT_KEYRING_DIR
     fi
     touch "${PASSBOLT_KEYRING_FILE}"
-    cat $tmpkey | gpg --dearmor --yes --output "${PASSBOLT_KEYRING_FILE}"
+    cat "$tmpkey" | gpg --dearmor --yes --output "${PASSBOLT_KEYRING_FILE}"
   else
     echo "Fingerprint mismatch"
     exit 1
@@ -252,7 +252,7 @@ pull_updated_pub_key() {
     # Handle gpg error in case of a server key failure
     # Without this check, and because we are using set -euo pipefail
     # The script fail in case of failure
-    if tmpkey=$(mktemp) && curl -sS "https://keys.openpgp.org/pks/lookup?op=get&options=mr&search=0x${PASSBOLT_FINGERPRINT}" -o "$tmpkey"; then
+    if tmpkey=$(mktemp) && curl -sS "https://${serverin}/pks/lookup?op=get&options=mr&search=0x${PASSBOLT_FINGERPRINT}" -o "$tmpkey"; then
       pub_key_verification
       break
     fi
